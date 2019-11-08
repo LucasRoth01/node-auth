@@ -1,16 +1,27 @@
 const express = require("express");
 
+
+const users=[{id:123, email:"asd@asd.se", password:"2a$12$Q3z8etM5FRyloMZbGuekLOHQWutnuo0dzosBbVBFqHQybs7bsZT0O"},
+             {id:53, email:"qwe@qwe.se", password:"2a$12$6x4EYHVWdZpC8n3VSWWCeOO9Mn8oCY.vcu6jCr1TBC3Smmg9aSVkq"}
+
+];
+
 const app = express();
+app.use(express.urlencoded({extended:false}));
+
+
 
 app.get("/",function(req,res){
     res.send("index route...");
 });
 
 app.get("/login",function(req,res){
-    res.send("route för att visa inloggningsformulär");
+    res.sendFile(__dirname+"/loginform.html")
 });
 
 app.post("/login",function(req,res){
+
+    res.send(req.body);
 
     /**
      * 1. hämta data som klienten skickat ( Repetition )
@@ -27,8 +38,7 @@ app.post("/login",function(req,res){
      * 9. Småfix för att förbättra säkerhet och fixa utloggning. 
      */
 
-    res.send(`Route för att hantera själva inloggningen.<br>
-    En del av detta kommer att ske i middleware`);
+    
 
 });
 
