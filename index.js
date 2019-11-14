@@ -1,5 +1,5 @@
 const express = require("express");
-
+const bcrypt = require("bcryptjs");
 
 const users=[{id:123, email:"asd@asd.se", password:"2a$12$Q3z8etM5FRyloMZbGuekLOHQWutnuo0dzosBbVBFqHQybs7bsZT0O"},
              {id:53, email:"qwe@qwe.se", password:"2a$12$6x4EYHVWdZpC8n3VSWWCeOO9Mn8oCY.vcu6jCr1TBC3Smmg9aSVkq"}
@@ -21,9 +21,39 @@ app.get("/login",function(req,res){
 
 app.post("/login",function(req,res){
 
-    res.send(req.body);
 
+    let user = users.filter(function(u){
+        if (req.body.email === u.email)
+        return true;
+    });
+       
+    if (user.length===1){
+
+    const password = req.body.password;
+    const hash = user[0].password;
+
+     bcrypt.compare(password,hash,function(err,success){
+         if(success){
+            res.send("loggin success");
+         }
+         
+         else{
+             res.send("wrong password");
+         }
+
+    });
+    else{
+        res.send("no such user");
+    }
+
+
+
+    
     /**
+     * 
+     * 
+     * 
+     * 
      * 1. hämta data som klienten skickat ( Repetition )
      * 2. Leta efter användare i databas/fil/minne
      * 3. Om användare ej finns skicka respons till klient med error
