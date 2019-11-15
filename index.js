@@ -1,20 +1,37 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
-
+const cookieParser = require("cookie-parser");
+const jwt = require("jsonwebtoken");
 const users=[{id:123, email:"asd@asd.se", password:"2a$12$Q3z8etM5FRyloMZbGuekLOHQWutnuo0dzosBbVBFqHQybs7bsZT0O"},
              {id:53, email:"qwe@qwe.se", password:"2a$12$6x4EYHVWdZpC8n3VSWWCeOO9Mn8oCY.vcu6jCr1TBC3Smmg9aSVkq"}
 
 ];
 
+const secret ="asdasäöfesmksömdksmdk"
+
+
+
+
+
 const app = express();
 app.use(express.urlencoded({extended:false}));
-
+app.use(cookieParser());
 
 
 app.get("/",function(req,res){
-    res.send("index route...");
+    res.send(req.cookies);
 });
 
+app.get("/secret",auth,function(req,res){
+    res.send(req.cookies);
+});
+function auth(req,res,next)
+{
+    if(req.cookies.token){
+    let token = jwt.verify(req.cookies.token,secret);
+    }
+    next();
+}
 app.get("/login",function(req,res){
     res.sendFile(__dirname+"/loginform.html")
 });
@@ -27,24 +44,29 @@ app.post("/login",function(req,res){
         return true;
     });
        
-    if (user.length===1){
+    if (user.length===1)
+    {
+     const password = req.body.password;
+     const hash = user[0].password; 
+     bcrypt.compare(password,hash,function(err,success)
+     {
+        if(success){ 
 
-    const password = req.body.password;
-    const hash = user[0].password;
+            const token = jwt.sign({email:user[0].email},secret,{expiresIn:180});
 
-     bcrypt.compare(password,hash,function(err,success){
-         if(success){
+
+            res.cookie("token",token,{httpOnly:true,sameSite:"strickt"})
             res.send("loggin success");
-         }
-         
-         else{
-             res.send("wrong password");
-         }
+        }
 
-    });
-    else{
-        res.send("no such user");
+         else{res.send("wrong password");}   
+
+     });
     }
+
+    else{ res.send("no such user");}
+       
+    
 
 
 
