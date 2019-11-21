@@ -2,13 +2,14 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
-const users=[{id:123, email:"asd@asd.se", password:"2a$12$Q3z8etM5FRyloMZbGuekLOHQWutnuo0dzosBbVBFqHQybs7bsZT0O"},
+const auth = require("./modules/auth");
+const secret = require("./modules/secret")
+
+
+const users=[{id:123, email:"asd@asd.se", password:"$2a$12$hs9lh530axnWf6XQ2wjCZO8ygGM5axhrgQ7A2pQR6vXiE8Ob/67pS"},
              {id:53, email:"qwe@qwe.se", password:"2a$12$6x4EYHVWdZpC8n3VSWWCeOO9Mn8oCY.vcu6jCr1TBC3Smmg9aSVkq"}
 
 ];
-
-const secret ="asdasäöfesmksömdksmdk"
-
 
 
 
@@ -25,13 +26,9 @@ app.get("/",function(req,res){
 app.get("/secret",auth,function(req,res){
     res.send(req.cookies);
 });
-function auth(req,res,next)
-{
-    if(req.cookies.token){
-    let token = jwt.verify(req.cookies.token,secret);
-    }
-    next();
-}
+
+
+
 app.get("/login",function(req,res){
     res.sendFile(__dirname+"/loginform.html")
 });
@@ -54,8 +51,7 @@ app.post("/login",function(req,res){
 
             const token = jwt.sign({email:user[0].email},secret,{expiresIn:180});
 
-
-            res.cookie("token",token,{httpOnly:true,sameSite:"strickt"})
+            res.cookie("token",token,{httpOnly:true,sameSite:"strickt"});
             res.send("loggin success");
         }
 
