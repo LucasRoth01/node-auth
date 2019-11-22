@@ -3,18 +3,15 @@ const bcrypt = require("bcryptjs");
 const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
 const auth = require("./modules/auth");
-const secret = require("./modules/secret")
+const secret = require("./modules/secret");
 
-
-const users=[{id:123, email:"asd@asd.se", password:"$2a$12$hs9lh530axnWf6XQ2wjCZO8ygGM5axhrgQ7A2pQR6vXiE8Ob/67pS"},
-             {id:53, email:"qwe@qwe.se", password:"2a$12$6x4EYHVWdZpC8n3VSWWCeOO9Mn8oCY.vcu6jCr1TBC3Smmg9aSVkq"}
-
+const users = [
+    {id:123, email:"lars@lars.se", password: "$2a$12$k0gv6Ua2mS9CixE8zUoMVeeDsXXrCT4.KXSOu.P8VVVSYcwOSzsAO"},
+    {id:55, email:"fredric@fredric.se", password: "$2a$12$xYRtcLxpvuvdRMeLd4p8xeNEPPWomlsPAS6d6LsIwnGSeS6uuTkZC"}
 ];
 
-
-
-
 const app = express();
+
 app.use(express.urlencoded({extended:false}));
 app.use(cookieParser());
 
@@ -24,54 +21,53 @@ app.get("/",function(req,res){
 });
 
 app.get("/secret",auth,function(req,res){
-    res.send(req.cookies);
+    res.send("hej");
 });
 
 
 
+
 app.get("/login",function(req,res){
-    res.sendFile(__dirname+"/loginform.html")
+    res.sendFile(__dirname + "/loginform.html");
 });
 
 app.post("/login",function(req,res){
 
 
-    let user = users.filter(function(u){
-        if (req.body.email === u.email)
-        return true;
-    });
-       
-    if (user.length===1)
-    {
-     const password = req.body.password;
-     const hash = user[0].password; 
-     bcrypt.compare(password,hash,function(err,success)
-     {
-        if(success){ 
-
-            const token = jwt.sign({email:user[0].email},secret,{expiresIn:180});
-
-            res.cookie("token",token,{httpOnly:true,sameSite:"strickt"});
-            res.send("loggin success");
-        }
-
-         else{res.send("wrong password");}   
-
-     });
-    }
-
-    else{ res.send("no such user");}
-       
     
 
+   let user = users.filter(function(u){
+       if(req.body.email === u.email)
+       {return true;}
+   });
+
+   if(user.length===1)
+   {
+        const password = req.body.password;
+        const hash = user[0].password; 
+        
+        bcrypt.compare(password,hash,function(err,success){
+         
+            if(success){
+
+                const token = jwt.sign({email:user[0].email},secret,{expiresIn:180})
 
 
-    
+                res.cookie("token",token,{httpOnly:true,sameSite:"Strict"});
+                res.redirect("/secret");
+            }
+            else{ 
+                res.redirect("/login?fel");
+            }
+
+        });
+
+   }
+   else{ 
+       res.send("no such user");
+   }
+
     /**
-     * 
-     * 
-     * 
-     * 
      * 1. hämta data som klienten skickat ( Repetition )
      * 2. Leta efter användare i databas/fil/minne
      * 3. Om användare ej finns skicka respons till klient med error
@@ -86,10 +82,9 @@ app.post("/login",function(req,res){
      * 9. Småfix för att förbättra säkerhet och fixa utloggning. 
      */
 
-    
 
 });
 
-// kollar om systemet har en angiven port, annars 3700...
+
 const port = process.env.PORT || 3700
 app.listen(port, function(){console.log("port:" +port)});
