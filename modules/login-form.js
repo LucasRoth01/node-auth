@@ -1,3 +1,10 @@
+import { builtinModules } from "module";
+
+
+
+
+let html = `
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -25,3 +32,7 @@ input{
     </form>
 </body>
 </html>
+`;
+module.exports = function(req,res){
+    res.send(html);
+}
